@@ -13,7 +13,6 @@ class ViewController: UIViewController,UICollectionViewDataSource,UICollectionVi
     @IBOutlet var backgraundImageCsk: UIImageView!
     @IBOutlet var cellForCollectionViewOutlet: UICollectionView!
     
-    private var arrayOfFotoPlayers:[UIImage] = []
     private var teamPlayers:[InfoAboutTeamPlayrs] = []
     private let adressJsonTeam = "https://khl.api.webcaster.pro/api/khl_mobile/players_v2_light.json"
 
@@ -22,7 +21,6 @@ class ViewController: UIViewController,UICollectionViewDataSource,UICollectionVi
         super.viewDidLoad()
             
         loadFullPlayersInfoFromJson()
-       
         backgraundImageCsk.image = UIImage.init(named: "ее")
     }
     
@@ -40,7 +38,7 @@ class ViewController: UIViewController,UICollectionViewDataSource,UICollectionVi
             
         let celll = cellForCollectionViewOutlet.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! CustomCellTOColletionView
         
-        celll.imageLableCell.image = insertPhotoInCallectionView(item: teamPlayers[indexPath.item].image)
+            celll.imageLableCell.image = insertPhotoInCallectionView(item: teamPlayers[indexPath.item].image)
         return celll
     }
     
@@ -62,18 +60,34 @@ class ViewController: UIViewController,UICollectionViewDataSource,UICollectionVi
             }
             }.resume()
     }
+
+    func insertPhotoInCallectionView(item adreess: String?) -> UIImage {
+        var photoImage = UIImage()
+
+            if let image = adreess  {
+                if  let imageUrl = URL(string: image) {
+                    let imageData = try? Data(contentsOf: imageUrl)
+                    photoImage = UIImage(data: imageData!)!
+                }
+    }
+        return photoImage
+    }
     
-//    func insertPhotoInCallectionView(item adreess: String?) -> UIImage {
-//        var photoImage = UIImage()
-//
-//            if let image = adreess  {
-//                if  let imageUrl = URL(string: image) {
-//                    let imageData = try? Data(contentsOf: imageUrl)
-//                    photoImage = UIImage(data: imageData!)!
-//                }
-//    }
-//        return photoImage
-//    }
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard segue.identifier == "ToAllInfoAboutPlayer" else {return}
+        
+        let senderCell = sender as! CustomCellTOColletionView
+        
+        if let indexPath = collectionViewOulet.indexPath(for: senderCell) {
+           let allInfoVC = segue.destination as? AllInfoPlayerInfoViewController
+            allInfoVC!.nameSername = teamPlayers[indexPath.item].name
+            allInfoVC?.shirtNumberText = teamPlayers[indexPath.item].shirt_number
+            allInfoVC?.teamLabelText = teamPlayers[indexPath.item].team?.name
+            allInfoVC?.imagePlayer = insertPhotoInCallectionView(item: teamPlayers[indexPath.item].image)
+        
+        }
+        
+    }
 }
         
         
